@@ -1,4 +1,6 @@
+import { variable } from '@angular/compiler/src/output/output_ast';
 import { Component } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Todo } from 'src/models/todo.model';
 
 @Component({
@@ -9,12 +11,29 @@ import { Todo } from 'src/models/todo.model';
 export class AppComponent {
   public todos: Todo[] = []; //[] quando se iguala ao colchete indica-se vazio.
   public title: String = 'My Tasks';
+  public form: FormGroup;
 
-  constructor() {
-    this.todos.push( new Todo(1, 'Ir ao mercado', false));
-    this.todos.push( new Todo(2, 'Passear com o cachorro', false));
-    this.todos.push( new Todo(3, 'Estudo', true));
-    this.todos.push( new Todo(4, 'Treino', false));
+  constructor(private fb: FormBuilder) {
+    this.form = this.fb.group({
+      title: ['', Validators.compose([ //compose é quando se tem mais de uma validação.
+        Validators.minLength(2),
+        Validators.maxLength(60),
+        Validators.required //require é obrigatorio.
+      ])
+    ]
+    });
+  }
+
+  add() {
+    const title = this.form.controls['title'].value;
+    const id = this.todos.length + 1;
+    this.todos.push(new Todo(id, title, false));
+    this.clear();
+  }
+
+  clear(){
+    this.form.reset();
+
   }
 
   alterText() {
